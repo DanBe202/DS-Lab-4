@@ -11,7 +11,11 @@ def read_csv(file_path: str) -> pd.DataFrame:
     Reads a CSV file and returns its content as a DataFrame.
     Raises ValueError if the file is empty.
     """
-    data = pd.read_csv(file_path)
+    try:
+        data = pd.read_csv(file_path)
+    except pd.errors.EmptyDataError:
+        raise ValueError("The CSV file is empty.")
+
     if data.empty:
         raise ValueError("The CSV file is empty.")
     return data
@@ -21,7 +25,11 @@ def visualize_data(data: pd.DataFrame, x_column: str, y_column: str):
     """
     Visualizes the relationship between the feature and the target variable.
     """
-
+    plt.scatter(data[x_column], data[y_column], color='blue', label='Data points')
+    plt.xlabel(x_column)
+    plt.ylabel(y_column)
+    plt.title(f'{x_column} vs {y_column}')
+    plt.legend()
     plt.show()
 
 
@@ -30,21 +38,27 @@ def linear_regression_with_metrics(data: pd.DataFrame, x_column: str, y_column: 
     Performs linear regression, evaluates metrics, and visualizes the regression line.
     """
     # Prepare the data
-
+    X = data[[x_column]]
+    y = data[y_column]
 
     # Split the data
-
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42
+    )
 
     # Train the model
-
+    model = LinearRegression()
+    model.fit(X_train, y_train)
 
     # Make predictions
-
+    y_pred = model.predict(X_test)
 
     # Evaluate the model
+    mae = mean_absolute_error(y_test, y_pred)
+    mse = mean_squared_error(y_test, y_pred)
+    rmse = np.sqrt(mse)
 
-
-    print(f"Model Evaluation Metrics:")
+    print("Model Evaluation Metrics:")
     print(f"Mean Absolute Error (MAE): {mae:.2f}")
     print(f"Mean Squared Error (MSE): {mse:.2f}")
     print(f"Root Mean Squared Error (RMSE): {rmse:.2f}")
